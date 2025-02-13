@@ -25,7 +25,7 @@ const items = [
   },
   {
     title: "Accounts",
-    url: "#",
+    url: "./account",
     icon: User,
   },
 

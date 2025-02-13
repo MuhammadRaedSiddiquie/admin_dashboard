@@ -5,6 +5,8 @@ import Header from "./components/Header/Header";
 import { Provider } from "@/components/ui/provider"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "./components/app-sidebar/app-sidebar";
+import SidebarWrapper from "./components/sidebarWrapper.tsx/sidebarWrapper";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,18 +25,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+  params: { pathname: string };
+}>)
+
+{
+  
+  const hideSidebar = ["/admin/login", "/overview", "/signup"].includes(params.pathname);
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SidebarProvider>
-        <AppSidebar />
-        {/* <Header /> */}
-        {/* <SidebarTrigger /> */}
+        <SidebarWrapper />
         <Provider>
           {children}
         </Provider>

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiSidebar } from 'react-icons/fi';
 import Breadcrumbs from '../components/Breadcrumbs/Breadcrumbs';
 import useProductStore from '../stores/useProductStore';
@@ -13,7 +13,7 @@ import { nanoid } from 'nanoid';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useDropzone } from 'react-dropzone';
-import { Upload } from 'lucide-react';
+import { Divide, Upload } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { sanityClient } from '@/lib/sanity.client';
@@ -22,7 +22,9 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 const ProductsPage = () => {
     const { items } = useProductStore();
     useSyncProduct();
-
+useEffect(()=>{
+    setLoading(false)
+},[items])
     const [formData, setFormData] = useState({
         id: nanoid(),
         title: '',
@@ -37,7 +39,7 @@ const ProductsPage = () => {
         availabilityStatus: 'in-stock',
         images: [] as File[],
     });
-
+    const [loading, setLoading] = useState(true)
     const { getRootProps, getInputProps } = useDropzone({
         onDrop: (acceptedFiles) => {
             setFormData((prevData) => ({ ...prevData, images: acceptedFiles }));
@@ -118,6 +120,9 @@ const ProductsPage = () => {
     };
     const [sort, setSort] = useState<string[]>(["default"]);
     const [sorted, setSorted] = useState(items);
+    useEffect(() => {
+        setSorted(items)
+    }, [items])
     const categories = createListCollection({
         items: [
             { label: "Beauty", value: "beauty" },
@@ -140,9 +145,9 @@ const ProductsPage = () => {
                 break;
         }
     }
-
+    console.log(sorted, 'sorted items')
     return (
-        <section className="w-full px-6 flex gap-6 flex-col items-start py-6">
+        <section className="w-full px-1 lg:px-6 flex gap-6 flex-col items-start py-6">
             <div className="gap-6 flex items-center">
                 <SidebarTrigger />
                 <Breadcrumbs text={'Products'} />
@@ -165,10 +170,10 @@ const ProductsPage = () => {
                         </SelectContent>
                     </Select>
 
-                    <button onClick={() => productSorting()} className='bg-black text-sm text-white rounded-[5px] py-[10px] px-[20px]'>Filter</button>
+                    <button onClick={() => productSorting()} className='bg-black text-[12px] text-white rounded-[5px] py-[10px] px-[20px]'>Filter</button>
                 </div>
                 <Dialog>
-                    <DialogTrigger className="bg-black text-white px-4 py-2 rounded-md font-semibold">
+                    <DialogTrigger className="bg-black text-base text-white px-4 py-2 rounded-md font-semibold">
                         Add Product +
                     </DialogTrigger>
                     <DialogContent>
@@ -202,11 +207,11 @@ const ProductsPage = () => {
                                     {/* Form Fields */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700">Product Name</label>
+                                            <label className="block text-[12px] font-medium text-gray-700">Product Name</label>
                                             <Input name="title" value={formData.title} onChange={handleChange} placeholder="Enter product name" required />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700">Category</label>
+                                            <label className="block text-[12px] font-medium text-gray-700">Category</label>
                                             <Select onValueChange={handleCategoryChange}>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select categories" />
@@ -221,32 +226,32 @@ const ProductsPage = () => {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Price</label>
+                                        <label className="block text-[12px] font-medium text-gray-700">Price</label>
                                         <Input type="number" min="0" name="price" value={formData.price} onChange={handleChange} required />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Description</label>
+                                        <label className="block text-[12px] font-medium text-gray-700">Description</label>
                                         <Textarea name="description" value={formData.description} onChange={handleChange} placeholder="Enter product description" required />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Tags (comma-separated)</label>
+                                        <label className="block text-[12px] font-medium text-gray-700">Tags (comma-separated)</label>
                                         <Input name="tags" value={formData.tags.join(', ')} onChange={handleTagsChange} placeholder="Enter tags" />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Brand</label>
+                                        <label className="block text-[12px] font-medium text-gray-700">Brand</label>
                                         <Input name="brand" value={formData.brand} onChange={handleChange} placeholder="Enter brand" />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Stock</label>
+                                        <label className="block text-[12px] font-medium text-gray-700">Stock</label>
                                         <Input type="number" min="0" name="stock" value={formData.stock} onChange={handleChange} placeholder="Enter stock" />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Availability Status</label>
+                                        <label className="block text-[12px] font-medium text-gray-700">Availability Status</label>
                                         <Select onValueChange={(value) => setFormData((prev) => ({ ...prev, availabilityStatus: value }))}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select availability status" />
@@ -272,36 +277,40 @@ const ProductsPage = () => {
             </div>
             <div className='w-full rounded-[8px] flex flex-col items-center border-2 border-[#e7e7e7]'>
                 <ul className="w-full flex justify-between items-center border-b-2 border-secondaryCol py-2">
-                    <li className="montserrat-semibold w-[10%] flex items-center justify-center text-secondaryCol text-base">
+                    <li className="montserrat-semibold w-[10%] flex items-center justify-center text-secondaryCol text-[12px] lg:text-base">
                         Image
                     </li>
-                    <li className="montserrat-semibold w-[20%] flex items-center justify-center text-secondaryCol text-base">
+                    <li className="montserrat-semibold w-[20%] flex items-center justify-center text-secondaryCol text-[12px] lg:text-base">
                         Name
                     </li>
-                    <li className="montserrat-semibold w-[15%] flex items-center justify-center text-secondaryCol text-base">
+                    <li className="montserrat-semibold w-[15%] flex items-center justify-center text-secondaryCol text-[12px] lg:text-base">
                         Category
                     </li>
-                    <li className="montserrat-semibold w-[40%] flex items-center justify-center text-secondaryCol text-base">
+                    <li className="montserrat-semibold w-[40%] flex items-center justify-center text-secondaryCol text-[12px] lg:text-base">
                         Description
                     </li>
-                    <li className="montserrat-semibold w-[10%] flex items-center justify-center text-secondaryCol text-base">
+                    <li className="montserrat-semibold w-[10%] flex items-center justify-center text-secondaryCol text-[12px] lg:text-base">
                         Price
                     </li>
-                    <li className="montserrat-semibold w-[5%] flex items-center justify-center text-secondaryCol text-base">
+                    <li className="montserrat-semibold w-[5%] flex items-center justify-center text-secondaryCol text-[12px] lg:text-base">
                         ...
                     </li>
                 </ul>
+
+
                 <ul className="w-full flex flex-col justify-start items-center [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
-                    {items?.length > 0 ? (
-                        sorted?.map((product: any) => (
+                    {loading ? (
+                        <div className='h-[60vh] w-full flex items-center justify-center bg-[url("/loader.gif")] bg-contain bg-center'></div>
+                    ) : sorted?.length > 0 ? ( 
+                        sorted.map((product: any) => (
                             <li
                                 key={product.product?.id || product?.id}
-                                className="w-full min-h-[100px] flex items-center justify-between border-b-2 border-[#e3e3e3]"
+                                className="w-full min-h-[120px] lg:min-h-[100px] flex items-center justify-between border-b-2 border-[#e3e3e3]"
                             >
                                 <div className="flex flex-col items-center justify-center gap-4 w-[10%] h-[80px]">
                                     <Image
                                         src={product?.images[0]?.asset?.url || product?.image}
-                                        alt={product?.title || product?.title}
+                                        alt={product?.title || "Product Image"}
                                         width={80}
                                         height={80}
                                         className="object-cover"
@@ -309,33 +318,41 @@ const ProductsPage = () => {
                                     />
                                 </div>
                                 <div className="flex flex-col items-center justify-center gap-4 w-[20%] h-[80px]">
-                                    <h3 className="montserrat-medium text-center text-primaryCol px-2 text-base">{product?.title}</h3>
+                                    <h3 className="montserrat-medium text-start lg:text-center text-primaryCol px-2 text-[12px] line-clamp-2 lg:line-clamp-0 lg:text-base">
+                                        {product?.title}
+                                    </h3>
                                 </div>
                                 <div className="flex flex-col items-center justify-center gap-4 w-[15%] h-[80px]">
-                                    <h3 className="montserrat-medium text-center text-primaryCol text-base">{product?.category}</h3>
+                                    <h3 className="montserrat-medium text-start lg:text-center text-primaryCol text-[12px] lg:text-base">
+                                        {product?.category}
+                                    </h3>
                                 </div>
                                 <div className="flex flex-col items-center justify-center gap-4 w-[40%] h-[80px]">
-                                    <p className="montserrat-medium text-center text-primaryCol px-2 text-base line-clamp-2">{product?.description}</p>
+                                    <p className="montserrat-medium text-start lg:text-center text-primaryCol px-2 text-[12px] lg:text-base line-clamp-2">
+                                        {product?.description}
+                                    </p>
                                 </div>
                                 <div className="flex items-center justify-center w-[10%]">
-                                    <h3 className="text-black montserrat-semibold text-center text-lg">
+                                    <h3 className="text-black montserrat-semibold text-center text-[12px] lg:text-lg">
                                         ${(product.price).toFixed(2)}
                                     </h3>
                                 </div>
                                 <div className="flex items-center justify-center w-[5%]">
-                                    <button
-                                        className="text-black text-2xl font-bolder text-center"
-                                    //   onClick={() => removeFromCart(userId, product.product?._id)}
-                                    >
+                                    <button className="text-black text-2xl font-bolder text-center">
                                         ...
                                     </button>
                                 </div>
                             </li>
                         ))
                     ) : (
-                        <p className="montserrat-bold text-primaryCol text-xl">Your Cart Is Empty</p>
+                        <p className="montserrat-bold text-primaryCol text-xl">
+                            Your Cart Is Empty
+                        </p>
                     )}
                 </ul>
+
+
+
             </div>
         </section>
     );

@@ -1,4 +1,4 @@
-// src/hooks/useSyncProduct.ts
+
 import { useEffect } from 'react';
 import useProductStore from '../stores/useProductStore';
 import axios from 'axios';
@@ -14,6 +14,7 @@ const useSyncProduct = () => {
           // Ensure the response data is an array
          console.log(response.data,'response')
           const items = Array.isArray(response.data) ? response.data : [];
+          console.log('items fetched',items)
           syncProduct(items);
         }
       } catch (error) {
