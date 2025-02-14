@@ -29,6 +29,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ message: "Authenticated", admin }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Auth check failed", error: error.message }, { status: 500 });
+    return NextResponse.json({ message: "Auth check failed", error: (error as Error).message }, { status: 500 });
   }
 }
